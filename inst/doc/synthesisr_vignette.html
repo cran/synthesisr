@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Eliza M. Grames and Martin J. Westgate" />
+
+
+<title>Import, assemble, deduplicate, and write bibliographic data with synthesisr</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Import, assemble, deduplicate, and write bibliographic data with synthesisr</h1>
+<h4 class="author">Eliza M. Grames and Martin J. Westgate</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Systematic review searches include multiple databases that export results in a variety of formats with overlap in coverage between databases. To streamline the process of importing, assembling, and deduplicating results, synthesisr recognizes bibliographic files exported from databases commonly used for systematic reviews and merges results into a standardized format.</p>
+<p>If you run into issues with the package, please open an issue at <a href="https://github.com/rmetaverse/synthesisr" class="uri">https://github.com/rmetaverse/synthesisr</a> or email <a href="mailto:martinjwestgate@gmail.com">martinjwestgate@gmail.com</a> or <a href="mailto:eliza.grames@uconn.edu">eliza.grames@uconn.edu</a>.</p>
+</div>
+<div id="read-and-assemble-bibliographic-files" class="section level2">
+<h2>Read and assemble bibliographic files</h2>
+<p>synthesisr can read any BibTex or RIS formatted bibliographic data files. It detects whether files are more bib-like or ris-like and imports them accordingly. Note that files from some databases may contain non-standard fields or non-standard characters that cause import failure in rare cases; if this happens, we recommend converting the file in open source bibliographic management software such as Zotero.</p>
+<p>In the code below, we will demonstrate how to read and assemble bibliographic data files with example datasets included in the synthesisr package. Note that if you are using the code with your own data, you will not need to use system.file() and instead will want to pass a character vector of the path(s) to the file(s) you want to import. For example, if you have saved all your search results in a directory called “search_results”, you may want to use list.files(“./search_results/”) instead.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># system.file will look for the path to where synthesisr is installed</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># by using the example bibliographic data files, you can reproduce the vignette</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">bibfiles &lt;-<span class="st"> </span><span class="kw">list.files</span>(</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="kw">system.file</span>(<span class="st">&quot;extdata/&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;synthesisr&quot;</span>),</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="dt">full.names =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># we can print the list of bibfiles to confirm what we will import</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># in this example, we have bibliographic data exported from Scopus and Zoological Record</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="kw">print</span>(bibfiles)</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; [1] &quot;/private/var/folders/s4/06ssj1yx0wgfpx500t9vp6b00000gn/T/RtmpN2kzwE/Rinst241c139586b6/synthesisr/extdata//scopus.ris&quot;</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt; [2] &quot;/private/var/folders/s4/06ssj1yx0wgfpx500t9vp6b00000gn/T/RtmpN2kzwE/Rinst241c139586b6/synthesisr/extdata//zoorec.txt&quot;</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># now we can use read_refs to read in our bibliographic data files</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># we save them to a data.frame object (because return_df=TRUE) called imported_files</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="kw">library</span>(synthesisr)</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">imported_files &lt;-<span class="st"> </span><span class="kw">read_refs</span>(</a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">  <span class="dt">filename =</span> bibfiles,</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19">  <span class="dt">return_df =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+</div>
+<div id="deduplicate-bibliographic-data" class="section level2">
+<h2>Deduplicate bibliographic data</h2>
+<p>Many journals are indexed in multiple databases, so searching across databases will retrieve duplicates. After import, synthesisr can detect duplicates and retain only unique bibliographic records using a variety of methods such as string distance or fuzzy matching records. A good place to start is removing articles that have identical titles, especially since this reduces computational time for more sophisticated deduplication methods.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># first, we will remove articles that have identical titles</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co"># this is a fairly conservative approach, so we will remove them without review</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">df &lt;-<span class="st"> </span><span class="kw">deduplicate</span>(</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  imported_files,</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="dt">match_by =</span> <span class="st">&quot;title&quot;</span>,</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="dt">method =</span> <span class="st">&quot;exact&quot;</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">)</a></code></pre></div>
+<p>In some cases, it may be useful to know which articles were identified as duplicates so they can be manually reviewed or so that information from two records can be merged. Using our partially-deduplicated dataset, we check a few titles and use string distance methods to find additional duplicate articles in the code below and then remove them by extracting unique references. Although here we only use one secondary deduplication method (string distance), we could look for additional duplicates based on fuzzy matching abstracts, for example.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># there are still some duplicate articles that were not removed</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># for example, the titles for articles 91 and 114 appear identical</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">df<span class="op">$</span>title[<span class="kw">c</span>(<span class="dv">91</span>,<span class="dv">114</span>)]</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt; [1] &quot;Composition of Bird Communities Following Stand-Replacement Fires in Northern Rocky Mountain (U.S.A.) Conifer Forests&quot;</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt; [2] &quot;FORAGING-HABITAT SELECTION OF BLACK-BACKED WOODPECKERS IN FOREST BURNS OF SOUTHWESTERN IDAHO&quot;</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># the dash-like symbol in title 91, however, is a special character not punctuation</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># so it was not classified as identical</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co"># similarly, there is a missing space in the title for article 96</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">df<span class="op">$</span>title[<span class="kw">c</span>(<span class="dv">21</span>,<span class="dv">96</span>)]</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt; [1] &quot;An integrated occupancy and space-use model to predict abundance of imperfectly detected, territorial vertebrates&quot;</span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt; [2] &quot;The persistence of Black-backed Woodpeckers following delayed salvage logging in the Sierra Nevada&quot;</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co"># and an extra space in title 47</span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15">df<span class="op">$</span>title[<span class="kw">c</span>(<span class="dv">47</span>, <span class="dv">101</span>)]</a>
+<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; [1] &quot;Foraging-habitat selection of black-backed wood peckers info rest burns of southwestern Idaho&quot;                   </span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; [2] &quot;An integrated occupancy and space-usemodel to predict abundance of imperfectly detected, territorial vertebrates&quot;</span></a>
+<a class="sourceLine" id="cb3-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co"># in this example, we will use string distance to identify likely duplicates</span></a>
+<a class="sourceLine" id="cb3-20" data-line-number="20">duplicates_string &lt;-<span class="st"> </span><span class="kw">find_duplicates</span>(</a>
+<a class="sourceLine" id="cb3-21" data-line-number="21">  df<span class="op">$</span>title,</a>
+<a class="sourceLine" id="cb3-22" data-line-number="22">  <span class="dt">method =</span> <span class="st">&quot;string_osa&quot;</span>,</a>
+<a class="sourceLine" id="cb3-23" data-line-number="23">  <span class="dt">to_lower =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb3-24" data-line-number="24">  <span class="dt">rm_punctuation =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb3-25" data-line-number="25">  <span class="dt">threshold =</span> <span class="dv">7</span></a>
+<a class="sourceLine" id="cb3-26" data-line-number="26">)</a>
+<a class="sourceLine" id="cb3-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb3-28" data-line-number="28"><span class="co"># we can extract the line numbers from the dataset that are likely duplicated</span></a>
+<a class="sourceLine" id="cb3-29" data-line-number="29"><span class="co"># this lets us manually review those titles to confirm they are duplicates</span></a>
+<a class="sourceLine" id="cb3-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb3-31" data-line-number="31">manual_checks &lt;-<span class="st"> </span><span class="kw">review_duplicates</span>(df<span class="op">$</span>title, duplicates_string)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">print</span>(manual_checks)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt;                                                           title matches</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt; 1  Few detections of black-backed woodpeckers (Picoides arcticu       4</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co">#&gt; 33 Few detections of Black-backed Woodpeckers (Picoides arcticu       4</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt; 2  The persistence of black-backed woodpeckers following delaye      11</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt; 35 The persistence of Black-backed Woodpeckers following delaye      11</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; 3  Fire-bird: A gis-based toolset for applying habitat suitabil      12</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt; 32 FIRE-BIRD: A GIS-based toolset for applying habitat suitabil      12</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; 4  Harvesting interacts with climate change to affect future ha      14</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt; 36 Harvesting interacts with climate change to affect future ha      14</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt; 5  Novel function of flutter display in the black-backed woodpe      15</span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co">#&gt; 34 NOVEL FUNCTION OF FLUTTER DISPLAY IN THE BLACK-BACKED WOODPE      15</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#&gt; 6  Tag-team takeover: Usurpation of woodpecker nests by western      17</span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">#&gt; 37 TAG-TEAM TAKEOVER: USURPATION OF WOODPECKER NESTS BY WESTERN      17</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt; 7  An integrated occupancy and space-use model to predict abund      21</span></a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt; 38 An integrated occupancy and space-usemodel to predict abunda      21</span></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="co">#&gt; 8  Contribution of Unburned Boreal Forests to the Population of      33</span></a>
+<a class="sourceLine" id="cb4-18" data-line-number="18"><span class="co">#&gt; 40 Contribution of unburned boreal forests to the population of      33</span></a>
+<a class="sourceLine" id="cb4-19" data-line-number="19"><span class="co">#&gt; 9  Drill, baby, drill: The influence of woodpeckers on post-fir      34</span></a>
+<a class="sourceLine" id="cb4-20" data-line-number="20"><span class="co">#&gt; 39 Drill, baby, drill: the influence of woodpeckers on post-fir      34</span></a>
+<a class="sourceLine" id="cb4-21" data-line-number="21"><span class="co">#&gt; 10 The role of wildfire, prescribed fire, and mountain pine bee      37</span></a>
+<a class="sourceLine" id="cb4-22" data-line-number="22"><span class="co">#&gt; 42 The Role of Wildfire, Prescribed Fire, and Mountain Pine Bee      37</span></a>
+<a class="sourceLine" id="cb4-23" data-line-number="23"><span class="co">#&gt; 11 Influence of old coniferous habitat on nestling growth of bl      39</span></a>
+<a class="sourceLine" id="cb4-24" data-line-number="24"><span class="co">#&gt; 45 Influence of old coniferous habitat on nestling growth of Bl      39</span></a>
+<a class="sourceLine" id="cb4-25" data-line-number="25"><span class="co">#&gt; 12  Roost sites of the Black-backed Woodpecker in burned forest      40</span></a>
+<a class="sourceLine" id="cb4-26" data-line-number="26"><span class="co">#&gt; 44  ROOST SITES OF THE BLACK-BACKED WOODPECKER IN BURNED FOREST      40</span></a>
+<a class="sourceLine" id="cb4-27" data-line-number="27"><span class="co">#&gt; 13 Occurrence patterns of black-backed woodpeckers in green for      41</span></a>
+<a class="sourceLine" id="cb4-28" data-line-number="28"><span class="co">#&gt; 46 Occurrence patterns of Black-backed Woodpeckers in green for      41</span></a>
+<a class="sourceLine" id="cb4-29" data-line-number="29"><span class="co">#&gt; 14 Habitat availability for multiple avian species under modele      42</span></a>
+<a class="sourceLine" id="cb4-30" data-line-number="30"><span class="co">#&gt; 41 Habitat availability for multiple avian species under modele      42</span></a>
+<a class="sourceLine" id="cb4-31" data-line-number="31"><span class="co">#&gt; 15 A comparison of avian habitat in forest management plans pro      43</span></a>
+<a class="sourceLine" id="cb4-32" data-line-number="32"><span class="co">#&gt; 43 A Comparison of Avian Habitat in Forest Management Plans Pro      43</span></a>
+<a class="sourceLine" id="cb4-33" data-line-number="33"><span class="co">#&gt; 16 Lethal procyrnea infection in a black-backed woodpecker (pic      46</span></a>
+<a class="sourceLine" id="cb4-34" data-line-number="34"><span class="co">#&gt; 47 LETHAL PROCYRNEA INFECTION IN A BLACK-BACKED WOODPECKER (PIC      46</span></a>
+<a class="sourceLine" id="cb4-35" data-line-number="35"><span class="co">#&gt; 17 Foraging-habitat selection of black-backed wood peckers info      47</span></a>
+<a class="sourceLine" id="cb4-36" data-line-number="36"><span class="co">#&gt; 48 FORAGING-HABITAT SELECTION OF BLACK-BACKED WOODPECKERS IN FO      47</span></a>
+<a class="sourceLine" id="cb4-37" data-line-number="37"><span class="co">#&gt; 18 High density nesting of black-backed woodpeckers (picoides a      48</span></a>
+<a class="sourceLine" id="cb4-38" data-line-number="38"><span class="co">#&gt; 50 High Density Nesting of Black-backed Woodpeckers (Picoides a      48</span></a>
+<a class="sourceLine" id="cb4-39" data-line-number="39"><span class="co">#&gt; 19 Pre-fire forest conditions and fire severity as determinants      49</span></a>
+<a class="sourceLine" id="cb4-40" data-line-number="40"><span class="co">#&gt; 51 Pre-fire forest conditions and fire severity as determinants      49</span></a>
+<a class="sourceLine" id="cb4-41" data-line-number="41"><span class="co">#&gt; 20 Modeling nest survival of cavity-nesting birds in relation t      50</span></a>
+<a class="sourceLine" id="cb4-42" data-line-number="42"><span class="co">#&gt; 52 Modeling Nest Survival of Cavity-Nesting Birds in Relation t      50</span></a>
+<a class="sourceLine" id="cb4-43" data-line-number="43"><span class="co">#&gt; 21 Occupancy modeling of black-backed woodpeckers on burned sie      51</span></a>
+<a class="sourceLine" id="cb4-44" data-line-number="44"><span class="co">#&gt; 53 Occupancy modeling of Black-backed Woodpeckers on burned Sie      51</span></a>
+<a class="sourceLine" id="cb4-45" data-line-number="45"><span class="co">#&gt; 22  Netguns: A technique for capturing Black-backed Woodpeckers      52</span></a>
+<a class="sourceLine" id="cb4-46" data-line-number="46"><span class="co">#&gt; 49  Netguns: a technique for capturing Black-backed Woodpeckers      52</span></a>
+<a class="sourceLine" id="cb4-47" data-line-number="47"><span class="co">#&gt; 23 Reproductive success of the black-backed woodpecker (Picoide      58</span></a>
+<a class="sourceLine" id="cb4-48" data-line-number="48"><span class="co">#&gt; 54 Reproductive success of the black-backed woodpecker (Picoide      58</span></a>
+<a class="sourceLine" id="cb4-49" data-line-number="49"><span class="co">#&gt; 24 Modeling the effects of environmental disturbance on wildlif      59</span></a>
+<a class="sourceLine" id="cb4-50" data-line-number="50"><span class="co">#&gt; 55 Modeling the effects of environmental disturbance on wildlif      59</span></a>
+<a class="sourceLine" id="cb4-51" data-line-number="51"><span class="co">#&gt; 25 Influences of postfire salvage logging on forest birds in th      61</span></a>
+<a class="sourceLine" id="cb4-52" data-line-number="52"><span class="co">#&gt; 56 Influences of postfire salvage logging on forest birds in th      61</span></a>
+<a class="sourceLine" id="cb4-53" data-line-number="53"><span class="co">#&gt; 26 Nest success of black-backed woodpeckers in forests with mou      66</span></a>
+<a class="sourceLine" id="cb4-54" data-line-number="54"><span class="co">#&gt; 58 Nest success of black-backed woodpeckers in forests with mou      66</span></a>
+<a class="sourceLine" id="cb4-55" data-line-number="55"><span class="co">#&gt; 27 The ecological importance of severe wildfires: Some like it       67</span></a>
+<a class="sourceLine" id="cb4-56" data-line-number="56"><span class="co">#&gt; 57 The ecological importance of severe wildfires: some like it       67</span></a>
+<a class="sourceLine" id="cb4-57" data-line-number="57"><span class="co">#&gt; 28 Boreal forest landbirds in relation to forest composition, s      72</span></a>
+<a class="sourceLine" id="cb4-58" data-line-number="58"><span class="co">#&gt; 60 Boreal forest landbirds in relation to forest composition, s      72</span></a>
+<a class="sourceLine" id="cb4-59" data-line-number="59"><span class="co">#&gt; 29 Avian communities of mature balsam fir forests in Newfoundla      87</span></a>
+<a class="sourceLine" id="cb4-60" data-line-number="60"><span class="co">#&gt; 62 Avian communities of mature balsam fir forests in Newfoundla      87</span></a>
+<a class="sourceLine" id="cb4-61" data-line-number="61"><span class="co">#&gt; 30 Immediate post-fire nesting by Black-backed Woodpeckers, Pic      90</span></a>
+<a class="sourceLine" id="cb4-62" data-line-number="62"><span class="co">#&gt; 63 Immediate post-fire nesting by black-backed woodpeckers, Pic      90</span></a>
+<a class="sourceLine" id="cb4-63" data-line-number="63"><span class="co">#&gt; 31 Composition of Bird Communities Following Stand-Replacement       91</span></a>
+<a class="sourceLine" id="cb4-64" data-line-number="64"><span class="co">#&gt; 64 Composition of bird communities following stand-replacement       91</span></a>
+<a class="sourceLine" id="cb4-65" data-line-number="65"><span class="co">#&gt; 59                              2006 May species count of birds      99</span></a>
+<a class="sourceLine" id="cb4-66" data-line-number="66"><span class="co">#&gt; 61                             2002 May species count for birds      99</span></a>
+<a class="sourceLine" id="cb4-67" data-line-number="67"><span class="co">#&gt; 65 Black-backed three-toed wood-pecker, Picoides arcticus, pred     140</span></a>
+<a class="sourceLine" id="cb4-68" data-line-number="68"><span class="co">#&gt; 66 Black-backed three-toed woodpecker, Pieoides arcticus, preda     140</span></a>
+<a class="sourceLine" id="cb4-69" data-line-number="69"></a>
+<a class="sourceLine" id="cb4-70" data-line-number="70"><span class="co"># the titles under match #99 are not duplicates, so we need to keep them both</span></a>
+<a class="sourceLine" id="cb4-71" data-line-number="71"><span class="co"># we can use the override_duplicates function to manually mark them as unique</span></a>
+<a class="sourceLine" id="cb4-72" data-line-number="72">new_duplicates &lt;-<span class="st"> </span>synthesisr<span class="op">::</span><span class="kw">override_duplicates</span>(duplicates_string, <span class="dv">99</span>)</a>
+<a class="sourceLine" id="cb4-73" data-line-number="73"></a>
+<a class="sourceLine" id="cb4-74" data-line-number="74"><span class="co"># now we can extract unique references from our dataset</span></a>
+<a class="sourceLine" id="cb4-75" data-line-number="75"><span class="co"># we need to pass it the dataset (df) and the matching articles (new_duplicates)</span></a>
+<a class="sourceLine" id="cb4-76" data-line-number="76">results &lt;-<span class="st"> </span><span class="kw">extract_unique_references</span>(df, new_duplicates)</a></code></pre></div>
+</div>
+<div id="write-bibliographic-files" class="section level2">
+<h2>Write bibliographic files</h2>
+<p>To facilitate exporting results to other platforms after assembly and deduplication, synthesisr can write bibliographic data to .ris or .bib files. Optionally, write_refs can write directly to a text file stored locally.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># synthesisr can write the full dataset to a bibliographic file</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># but in this example, we will just write the first citation</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co"># we also want it to be a nice clean bibliographic file, so we remove NA data</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># this makes it easier to view the output when working with a single article</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">citation &lt;-<span class="st"> </span>df[<span class="dv">1</span>,<span class="op">!</span><span class="kw">is.na</span>(df[<span class="dv">1</span>,])]</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw">format_citation</span>(citation)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;                                                                                                                                                              1 </span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt; &quot;Tingley, M.W. et al. (2020) Black-Backed Woodpecker Occupancy in Burned and Beetle-Killed Forests: Disturbance Agent Matters. Forest Ecology and Management.&quot;</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw">write_refs</span>(citation,</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13">  <span class="dt">format =</span> <span class="st">&quot;bib&quot;</span>,</a>
+<a class="sourceLine" id="cb5-14" data-line-number="14">  <span class="dt">file =</span> <span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15">)</a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="co">#&gt;  [1] &quot;@ARTICLE{1,&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </span></a>
+<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="co">#&gt;  [2] &quot;database={Scopus},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   </span></a>
+<a class="sourceLine" id="cb5-18" data-line-number="18"><span class="co">#&gt;  [3] &quot;document_type={Article},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </span></a>
+<a class="sourceLine" id="cb5-19" data-line-number="19"><span class="co">#&gt;  [4] &quot;source_type={JOUR},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </span></a>
+<a class="sourceLine" id="cb5-20" data-line-number="20"><span class="co">#&gt;  [5] &quot;author={Tingley, M.W. and Stillman, A.N. and Wilkerson, R.L. and Sawyer, S.C. and Siegel, R.B.},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </span></a>
+<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co">#&gt;  [6] &quot;address={Ecology &amp; Evolutionary Biology, University of Connecticut, 75 N. Eagleville Road, Unit 3043, Storrs, CT  06269, United States and The Institute for Bird Populations, P.O. Box 1346, Point Reyes StationCA  94956, United States and USDA Forest Service, Pacific Southwest Region, Vallejo, CA  94592, United States},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </span></a>
+<a class="sourceLine" id="cb5-22" data-line-number="22"><span class="co">#&gt;  [7] &quot;year={2020},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         </span></a>
+<a class="sourceLine" id="cb5-23" data-line-number="23"><span class="co">#&gt;  [8] &quot;title={Black-backed woodpecker occupancy in burned and beetle-killed forests: Disturbance agent matters},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </span></a>
+<a class="sourceLine" id="cb5-24" data-line-number="24"><span class="co">#&gt;  [9] &quot;source={Forest Ecology and Management},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </span></a>
+<a class="sourceLine" id="cb5-25" data-line-number="25"><span class="co">#&gt; [10] &quot;volume={455},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </span></a>
+<a class="sourceLine" id="cb5-26" data-line-number="26"><span class="co">#&gt; [11] &quot;article_number={117694},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </span></a>
+<a class="sourceLine" id="cb5-27" data-line-number="27"><span class="co">#&gt; [12] &quot;abstract={In the western United States, the black-backed woodpecker (Picoides arcticus) is a “snag specialist”, found predominantly in burned montane forests. While fire is a key disturbance agent in this system, recently, unprecedented large tracts of drought-stressed forest in the Sierra Nevada and Southern Cascades of California have succumbed to bark beetle outbreaks. Although this tree mortality could potentially be a boon for snag-dependent species, it is unclear whether the resulting snag forests provide sufficiently high-quality habitat for black-backed woodpeckers and other wildlife that are regionally associated with burned forests. We tested for differences in black-backed woodpecker occupancy between fire- and beetle-killed forests, and whether key environmental relationships driving woodpecker occupancy differed between stands affected by the two disturbance agents. Between 2016 and 2018, we surveyed for black-backed woodpeckers during 4448 surveys at 75 burned and 113 beetle-killed forest stands throughout the black-backed woodpecker's range in California, detecting at least one black-backed woodpecker on 448 surveys (16.2%) in burned forests and 115 surveys (6.8%) in beetle-killed forests. Controlling for a suite of environmental variables that can affect habitat quality, the odds of black-backed woodpeckers occurring in burned forests were predicted to be 12.6 times higher than in beetle-killed forest. Occupancy declined with time-since-disturbance in fire-killed but not beetle-killed forests, but occupancy increased similarly with snag density resulting from either disturbance agent. Across our broad study region, black-backed woodpeckers were more likely to occur in burned forests at higher latitudes and elevations; these patterns were even stronger in beetle-killed forests, where we found woodpeckers only at the more northerly and higher elevation sites. Our results demonstrate that for this disturbed-habitat specialist, disturbance agent matters; black-backed woodpeckers do not use habitat created by bark beetle outbreaks as readily as habitat created by fire. Given the likely increased magnitude and extent of bark beetle outbreaks in the future, further work is needed to assess the role of beetle-killed forests in longer-term population dynamics of black-backed woodpeckers beyond the first decade after disturbance, and to investigate whether these results can be generalized to other fire-associated wildlife species in the region. © 2019 Elsevier B.V.},&quot;</span></a>
+<a class="sourceLine" id="cb5-28" data-line-number="28"><span class="co">#&gt; [13] &quot;keywords={Bark beetle; California; Drought; Habitat; Occupancy; Picoides arcticus; Wildfire},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </span></a>
+<a class="sourceLine" id="cb5-29" data-line-number="29"><span class="co">#&gt; [14] &quot;doi={10.1016/j.foreco.2019.117694},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </span></a>
+<a class="sourceLine" id="cb5-30" data-line-number="30"><span class="co">#&gt; [15] &quot;url={https://www.scopus.com/inward/record.uri?eid=2-s2.0-85074800841&amp;doi=10.1016%2fj.foreco.2019.117694&amp;partnerID=40&amp;md5=0eda2e05b4ee01a795e8eb2dd2ec45bb},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </span></a>
+<a class="sourceLine" id="cb5-31" data-line-number="31"><span class="co">#&gt; [16] &quot;notes={Export Date: 11 January 2020},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </span></a>
+<a class="sourceLine" id="cb5-32" data-line-number="32"><span class="co">#&gt; [17] &quot;filename={/private/var/folders/s4/06ssj1yx0wgfpx500t9vp6b00000gn/T/RtmpN2kzwE/Rinst241c139586b6/synthesisr/extdata//scopus.ris},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </span></a>
+<a class="sourceLine" id="cb5-33" data-line-number="33"><span class="co">#&gt; [18] &quot;n_duplicates={1},&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </span></a>
+<a class="sourceLine" id="cb5-34" data-line-number="34"><span class="co">#&gt; [19] &quot;}&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </span></a>
+<a class="sourceLine" id="cb5-35" data-line-number="35"><span class="co">#&gt; [20] &quot;&quot;</span></a></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
